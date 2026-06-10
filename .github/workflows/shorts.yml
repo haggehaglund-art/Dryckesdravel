@@ -1,1 +1,31 @@
+name: Daily YouTube Short
 
+on:
+  schedule:
+    - cron: "0 8 * * *"  # kör varje dag kl 08 UTC (10 svensk tid)
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install requests google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client ffmpeg-python
+
+      - name: Run generator
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: python scripts/generate_short.py
